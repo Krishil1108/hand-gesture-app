@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Gesture & Air Mouse</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Hand Gesture Detection & Air Mouse</h1>
+        <div id="videoContainer">
+            <img id="videoFeed" src="{{ url_for('video_feed') }}" alt="Video Feed">
+        </div>
+        
+        <!-- Buttons to toggle modes -->
+        <div id="controls">
+            <button onclick="setMode('finger_count')">Start Finger Counting</button>
+            <button onclick="setMode('air_mouse')">Start Air Mouse</button>
+            <button onclick="setMode('gesture_detection')">Start Gesture Detection</button>
+        </div>
+        
+        <div id="fingerCount">Fingers: 0</div>
+    </div>
+
+    <script>
+        // Function to get the finger count from the Flask server and update the webpage
+        function updateFingerCount() {
+            fetch('/finger_count')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('fingerCount').innerText = 'Fingers: ' + data.fingers;
+                })
+                .catch(error => console.error('Error fetching finger count:', error));
+        }
+
+        // Update the finger count every 100 milliseconds when finger counting mode is active
+        setInterval(function() {
+            if (document.querySelector("button:active")) {
+                updateFingerCount();
+            }
+        }, 100);
+
+        // Set the mode of the app
+        function setMode(mode) {
+            fetch(`/set_mode/${mode}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Mode set to:', data.mode);
+                })
+                .catch(error => console.error('Error setting mode:', error));
+        }
+    </script>
+</body>
+</html>
